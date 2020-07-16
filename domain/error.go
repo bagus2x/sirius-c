@@ -6,7 +6,7 @@ import (
 
 var (
 	// ErrEmailAlreadyExist -
-	ErrEmailAlreadyExist = errors.New("Email Already Exist")
+	ErrEmailAlreadyExist = errors.New("Email already exist")
 	//ErrEmailNotFound -
 	ErrEmailNotFound = errors.New("Email not found")
 	// ErrInvalidPassword -
