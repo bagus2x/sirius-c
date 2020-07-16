@@ -5,6 +5,8 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/mongo/options"
+
 	"github.com/bagus2x/new-sirius/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -38,19 +40,23 @@ func (ur UserRepository) Create(user domain.User) (err error) {
 }
 
 // FindByEmailAndPassword -
-func (ur UserRepository) FindByEmailAndPassword(email string, password string) (user domain.User, err error) {
-	err = ur.db.Collection("user").FindOne(ur.ctx, bson.M{"email": email}).Decode(&user)
+func (ur UserRepository) FindByEmailAndPassword(email string, password string) (res domain.User, err error) {
+	err = ur.db.Collection("user").FindOne(ur.ctx, bson.M{"email": email}).Decode(&res)
 	if err != nil {
-		return user, domain.ErrEmailNotFound
+		if err == mongo.ErrNoDocuments {
+			return domain.User{}, domain.ErrEmailNotFound
+		}
+		return domain.User{}, err
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(res.Password), []byte(password))
 	if err != nil {
-		return user, domain.ErrInvalidPassword
+		return domain.User{}, domain.ErrInvalidPassword
 	}
-	return user, nil
+	return res, nil
 }
 
-// GetCountByEmail -
-func (ur UserRepository) GetCountByEmail(email string) (c int64, err error) {
-	return ur.db.Collection("user").CountDocuments(ur.ctx, bson.M{"email": email})
+// CountByEmail -
+func (ur UserRepository) CountByEmail(email string) (tot int64, err error) {
+	opts := options.Count().SetLimit(1)
+	return ur.db.Collection("user").CountDocuments(ur.ctx, bson.M{"email": email}, opts)
 }

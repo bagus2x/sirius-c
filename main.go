@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"os"
 	"time"
@@ -35,7 +34,6 @@ func main() {
 	}
 	// Setup Routes
 	rg := r.Group("/api")
-
-	resources.NewUserResource(context.TODO(), db, rg)
+	resources.NewUserResource(db, rg)
 	r.Run(":" + port)
 }

@@ -51,7 +51,7 @@ func TestGetCountByEmail(t *testing.T) {
 		log.Fatal(err)
 	}
 	ur := repositories.NewUserRepository(context.TODO(), db)
-	count, _ := ur.GetCountByEmail("arobi@gmail.com")
+	count, _ := ur.CountByEmail("arobi@gmail.com")
 	t.Log(count)
 
 }
