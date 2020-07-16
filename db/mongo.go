@@ -11,15 +11,12 @@ import (
 
 // Connect -
 func Connect(uri, name string, time time.Duration) (*mongo.Database, context.CancelFunc, error) {
-	// Set client options
-	clientOptions := options.Client().ApplyURI(uri)
-	// Connect to MongoDB
+	opts := options.Client().ApplyURI(uri)
 	ctx, cancel := context.WithTimeout(context.Background(), time)
-	client, err := mongo.Connect(ctx, clientOptions)
+	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
 		return nil, cancel, err
 	}
-	// Check the connection
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		return nil, cancel, err
