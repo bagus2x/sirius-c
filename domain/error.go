@@ -11,4 +11,6 @@ var (
 	ErrEmailNotFound = errors.New("Email not found")
 	// ErrInvalidPassword -
 	ErrInvalidPassword = errors.New("Invalid password")
+	// ErrPaperIDNotFound -
+	ErrPaperIDNotFound = errors.New("Paper not found")
 )
