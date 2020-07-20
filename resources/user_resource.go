@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bagus2x/new-sirius/domain"
-	"github.com/bagus2x/new-sirius/repositories"
-	"github.com/bagus2x/new-sirius/services"
+	"github.com/bagus2x/sirius-c/domain"
+	"github.com/bagus2x/sirius-c/repositories"
+	"github.com/bagus2x/sirius-c/services"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -30,22 +30,36 @@ func NewUserResource(db *mongo.Database, r *gin.RouterGroup) {
 
 // Signup -
 func (urs UserResource) Signup(c *gin.Context) {
-	var user domain.User
-	c.BindJSON(&user)
-	err := urs.userService.Signup(user)
+	var u domain.User
+	err := c.BindJSON(&u)
 	if err != nil {
-		c.JSON(getStatusCode(err), gin.H{"success": false, "message": err.Error()})
+		c.JSON(getStatusCodeUser(err), gin.H{"success": false, "message": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"success": true})
+	tokStr, err := urs.userService.Signup(&u)
+	if err != nil {
+		c.JSON(getStatusCodeUser(err), gin.H{"success": false, "message": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true, "token": tokStr})
 }
 
 // Signin -
 func (urs UserResource) Signin(c *gin.Context) {
-
+	var sf struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	c.BindJSON(&sf)
+	tokStr, err := urs.userService.Signin(sf.Email, sf.Password)
+	if err != nil {
+		c.JSON(getStatusCodeUser(err), gin.H{"success": false, "message": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true, "token": tokStr})
 }
 
-func getStatusCode(err error) int {
+func getStatusCodeUser(err error) int {
 	switch err {
 	case domain.ErrEmailAlreadyExist:
 		return http.StatusConflict
