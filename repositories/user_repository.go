@@ -5,12 +5,11 @@ import (
 	"log"
 	"time"
 
-	"go.mongodb.org/mongo-driver/mongo/options"
-
-	"github.com/bagus2x/new-sirius/domain"
+	"github.com/bagus2x/sirius-c/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -26,31 +25,32 @@ func NewUserRepository(ctx context.Context, db *mongo.Database) domain.UserRepos
 }
 
 // Create -
-func (ur UserRepository) Create(user domain.User) (err error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
-	user.Password = string(hash)
-	user.ID = primitive.NewObjectID()
-	user.CreatedAt = time.Now().Unix()
+func (ur UserRepository) Create(u *domain.User) (err error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
+	u.Password = string(hash)
+	u.ID = primitive.NewObjectID()
+	u.CreatedAt = time.Now().Unix()
+	u.Validated = false
 	if err != nil {
 		log.Fatal(err)
 		return err
 	}
-	_, err = ur.db.Collection("user").InsertOne(ur.ctx, user)
+	_, err = ur.db.Collection("user").InsertOne(ur.ctx, u)
 	return err
 }
 
 // FindByEmailAndPassword -
-func (ur UserRepository) FindByEmailAndPassword(email string, password string) (res domain.User, err error) {
+func (ur UserRepository) FindByEmailAndPassword(email string, password string) (res *domain.User, err error) {
 	err = ur.db.Collection("user").FindOne(ur.ctx, bson.M{"email": email}).Decode(&res)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return domain.User{}, domain.ErrEmailNotFound
+			return &domain.User{}, domain.ErrEmailNotFound
 		}
-		return domain.User{}, err
+		return &domain.User{}, err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(res.Password), []byte(password))
 	if err != nil {
-		return domain.User{}, domain.ErrInvalidPassword
+		return &domain.User{}, domain.ErrInvalidPassword
 	}
 	return res, nil
 }
