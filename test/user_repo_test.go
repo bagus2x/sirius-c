@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bagus2x/new-sirius/domain"
+	"github.com/bagus2x/sirius-c/domain"
 
-	"github.com/bagus2x/new-sirius/db"
-	"github.com/bagus2x/new-sirius/repositories"
+	"github.com/bagus2x/sirius-c/db"
+	"github.com/bagus2x/sirius-c/repositories"
 )
 
 func TestCreate(t *testing.T) {
@@ -20,7 +20,7 @@ func TestCreate(t *testing.T) {
 		log.Fatal(err)
 	}
 	ur := repositories.NewUserRepository(context.TODO(), db)
-	err = ur.Create(domain.User{
+	err = ur.Create(&domain.User{
 		Username: "bagus_kece",
 		Password: "bagus",
 		Email:    "bagus@gmail.com",
