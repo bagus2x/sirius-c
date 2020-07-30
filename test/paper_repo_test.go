@@ -2,9 +2,13 @@ package test
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"testing"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/bagus2x/sirius-c/db"
 	"github.com/bagus2x/sirius-c/domain"
@@ -24,9 +28,9 @@ func TestCreatePaper(t *testing.T) {
 		StartFrom:   time.Now().Unix(),
 		EndAt:       time.Now().Add(time.Hour * 2).Unix(),
 		Questions: []*domain.Question{
-			{Question: "Siapakah Hokage pertama?", Key: 1, Options: []domain.Option{{0, "Tobirama"}, {1, "Sandaime"}}},
-			{Question: "Siapakah Hokage Kedua?", Key: 1, Options: []domain.Option{{0, "Hiruze"}, {1, "Kabuto"}}},
-			{Question: "Siapakah Hokage ketiga?", Key: 1, Options: []domain.Option{{0, "Sasuke"}, {1, "Sandaime"}}},
+			{Question: "Siapakah Hokage pertama?", Key: "A", Options: []domain.Option{{"A", "Tobirama", ""}, {"B", "Sandaime", ""}}},
+			{Question: "Siapakah Hokage Kedua?", Key: "B", Options: []domain.Option{{"A", "Hiruze", ""}, {"B", "Kabuto", ""}}},
+			{Question: "Siapakah Hokage ketiga?", Key: "C", Options: []domain.Option{{"A", "Sasuke", ""}, {"B", "Sandaime", ""}}},
 		},
 	},
 	)
@@ -46,4 +50,74 @@ func TestFindPaperByID(t *testing.T) {
 		log.Fatal(err)
 	}
 	t.Log(res)
+}
+
+func TestGetOneBydID(t *testing.T) {
+	db, cancel, err := db.Connect(dbURI, dbName, 10*time.Second)
+	defer cancel()
+	if err != nil {
+		log.Fatal(err)
+	}
+	pr := repositories.NewPaperRepository(context.TODO(), db)
+	res, err := pr.GetPaper("5f1e7312d0802c4eb0c5548c")
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	res2, err := json.Marshal(res)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Println(string(res2))
+}
+
+func TestPushExamResult(*testing.T) {
+	db, cancel, err := db.Connect(dbURI, dbName, 10*time.Second)
+	defer cancel()
+	if err != nil {
+		log.Fatal(err)
+	}
+	stdID, _ := primitive.ObjectIDFromHex("5f1704e65191127f76aced7e")
+	pr := repositories.NewPaperRepository(context.TODO(), db)
+	resid, err := pr.PushExamResult("5f1fcf54efcbf0ec9ba24b49", &domain.Result{StudentID: stdID, Selected: []domain.Selected{{QstID: 0, Option: ""}, {QstID: 1, Option: ""}, {QstID: 2, Option: ""}}})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(resid)
+}
+
+func TestGetExamResult(t *testing.T) {
+	db, cancel, err := db.Connect(dbURI, dbName, 10*time.Second)
+	defer cancel()
+	if err != nil {
+		log.Fatal(err)
+	}
+	pr := repositories.NewPaperRepository(context.TODO(), db)
+	res, err := pr.GetExamResult("5f1fcf54efcbf0ec9ba24b49", "5f1fd964189f224db51bc248")
+	res2, _ := json.Marshal(res)
+	fmt.Println(string(res2))
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func TestEncode(t *testing.T) {
+	// "studentid" : ObjectId("5f1704e65191127f76aced7e"),
+	raw := `{
+		"student_id" : "5f1704e65191127f76aced7a",
+		"selected" : [
+			{
+				"qstID" : 1,
+				"option" : "A"
+			}
+		]
+	}`
+	var to domain.Result
+	err := json.Unmarshal([]byte(raw), &to)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	fmt.Println(to)
 }
