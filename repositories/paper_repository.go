@@ -128,9 +128,6 @@ func (pr PaperRepository) GetExamResult(id string, resid string) (res []map[stri
 			"student_id":         "$results.student_id",
 		},
 	}
-	project := bson.M{
-		"$project": bson.M{"results": 0},
-	}
 	group := bson.M{
 		"$group": bson.M{
 			"_id": bson.M{
@@ -143,61 +140,13 @@ func (pr PaperRepository) GetExamResult(id string, resid string) (res []map[stri
 				"endAt":      "$endAt",
 				"result_id":  "$result_id",
 			},
-			"result": bson.M{"$push": "$questions"},
-		},
-	}
-	project2 := bson.M{
-		"$project": bson.M{
-			"_id":    0,
-			"detail": "$_id",
-			"result": 1,
-		},
-	}
-	unwind4 := bson.M{"$unwind": "$result"}
-	group2 := bson.M{
-		"$group": bson.M{
-			"_id": "$detail",
-			"result": bson.M{
-				"$push": "$result",
-			},
-			"categories": bson.M{
-				"$addToSet": bson.M{
-					"label": "$result.category",
-					"correct": bson.M{
-						"$sum": bson.M{
-							"$cond": bson.A{bson.M{"$eq": bson.A{"$result.key", "$result.selected"}}, 1, 0},
-						},
-					},
-					"blank": bson.M{
-						"$sum": bson.M{
-							"$cond": bson.A{
-								bson.M{"$eq": bson.A{"", "$result.selected"}}, 1, 0,
-							},
-						},
-					},
-					"incorrect": bson.M{
-						"$sum": bson.M{
-							"$cond": bson.A{
-								bson.M{
-									"$and": bson.A{
-										bson.M{
-											"$ne": bson.A{"$result.key", "$result.selected"},
-										},
-										bson.M{
-											"$ne": bson.A{"", "$result.selected"},
-										},
-									},
-								}, 1, 0,
-							},
-						},
-					},
-				},
-			},
+			"result":    bson.M{"$push": "$questions"},
+			"questions": bson.M{"$push": "$questions"},
 		},
 	}
 	addFields2 := bson.M{
 		"$addFields": bson.M{
-			"all": bson.M{
+			"overall": bson.M{
 				"$reduce": bson.M{
 					"input": "$result",
 					"initialValue": bson.M{
@@ -253,8 +202,85 @@ func (pr PaperRepository) GetExamResult(id string, resid string) (res []map[stri
 			},
 		},
 	}
-	pipeline := bson.A{match, unwind, match2, unwind2, unwind3, redact, addFields, project, group, project2, unwind4, group2, addFields2}
-	curs, err := pr.db.Collection("paper").Aggregate(pr.ctx, pipeline)
+	unwind4 := bson.M{
+		"$unwind": "$result",
+	}
+	group2 := bson.M{
+		"$group": bson.M{
+			"_id": "$result.category",
+			"detail": bson.M{
+				"$first": "$_id",
+			},
+			"overall": bson.M{
+				"$first": "$overall",
+			},
+			"questions": bson.M{
+				"$first": "$questions",
+			},
+			"categories": bson.M{
+				"$push": bson.M{
+					"label": "$result.category",
+					"correct": bson.M{
+						"$sum": bson.M{
+							"$cond": bson.A{bson.M{"$eq": bson.A{"$result.key", "$result.selected"}}, 1, 0},
+						},
+					},
+					"blank": bson.M{
+						"$sum": bson.M{
+							"$cond": bson.A{bson.M{"$eq": bson.A{"", "$result.selected"}}, 1, 0},
+						},
+					},
+					"incorrect": bson.M{
+						"$sum": bson.M{
+							"$cond": bson.A{bson.M{
+								"$and": bson.A{
+									bson.M{"$ne": bson.A{"$result.key", "$result.selected"}},
+									bson.M{"$ne": bson.A{"", "$result.selected"}}},
+							}, 1, 0,
+							}},
+					},
+				},
+			},
+		},
+	}
+	group3 := bson.M{
+		"$group": bson.M{
+			"_id": "$detail",
+			"overall": bson.M{
+				"$first": "$overall",
+			},
+			"questions": bson.M{
+				"$first": "$questions",
+			},
+			"categories": bson.M{
+				"$push": bson.M{
+					"$reduce": bson.M{
+						"input":        "$categories",
+						"initialValue": bson.M{"correct": 0, "incorrect": 0, "blank": 0},
+						"in": bson.M{
+							"label":     "$$this.label",
+							"correct":   bson.M{"$add": bson.A{"$$this.correct", "$$value.correct"}},
+							"incorrect": bson.M{"$add": bson.A{"$$this.incorrect", "$$value.incorrect"}},
+							"blank":     bson.M{"$add": bson.A{"$$this.blank", "$$value.blank"}},
+						},
+					},
+				},
+			},
+		},
+	}
+	project := bson.M{
+		"$project": bson.M{
+			"_id":       0,
+			"detail":    "$_id",
+			"questions": 1,
+			"result": bson.M{
+				"categories": "$categories",
+				"overall":    "$overall",
+			},
+		},
+	}
+	pip := bson.A{match, unwind, match2, unwind2, unwind3, redact, addFields, group, addFields2, unwind4, group2, group3, project}
+	curs, err := pr.db.Collection("paper").Aggregate(pr.ctx, pip)
 	if err != nil {
 		return nil, err
 	}
