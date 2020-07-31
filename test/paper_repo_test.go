@@ -94,7 +94,7 @@ func TestGetExamResult(t *testing.T) {
 		log.Fatal(err)
 	}
 	pr := repositories.NewPaperRepository(context.TODO(), db)
-	res, err := pr.GetExamResult("5f1fcf54efcbf0ec9ba24b49", "5f1fd964189f224db51bc248")
+	res, err := pr.GetExamResult("5f22e484d5c048695e05b01d", "5f22e6fcd5c048695e05b020")
 	res2, _ := json.Marshal(res)
 	fmt.Println(string(res2))
 	if err != nil {
