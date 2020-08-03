@@ -31,6 +31,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	r.GET("/", func(c *gin.Context) {
+		c.String(200, "hello, world")
+	})
 	// Setup Routes
 	rg := r.Group("/api")
 	// [GET, POST] api/users/
