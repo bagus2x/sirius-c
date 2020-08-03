@@ -28,9 +28,9 @@ func TestCreatePaper(t *testing.T) {
 		StartFrom:   time.Now().Unix(),
 		EndAt:       time.Now().Add(time.Hour * 2).Unix(),
 		Questions: []*domain.Question{
-			{Question: "Siapakah Hokage pertama?", Key: "A", Options: []domain.Option{{"A", "Tobirama", ""}, {"B", "Sandaime", ""}}},
-			{Question: "Siapakah Hokage Kedua?", Key: "B", Options: []domain.Option{{"A", "Hiruze", ""}, {"B", "Kabuto", ""}}},
-			{Question: "Siapakah Hokage ketiga?", Key: "C", Options: []domain.Option{{"A", "Sasuke", ""}, {"B", "Sandaime", ""}}},
+			{Question: "Siapakah Hokage pertama?", Key: "A", Options: []domain.Option{{"A", "Tobirama", domain.Image{"", "200px"}}, {"B", "Sandaime", domain.Image{"", "200px"}}}},
+			{Question: "Siapakah Hokage Keduaa?", Key: "B", Options: []domain.Option{{"A", "Hiruze", domain.Image{"", "200px"}}, {"B", "Kabuto", domain.Image{"", "200px"}}}},
+			{Question: "Siapakah Hokage ketiga?", Key: "C", Options: []domain.Option{{"A", "Sasuke", domain.Image{"", "200px"}}, {"B", "Sandaime", domain.Image{"", "200px"}}}},
 		},
 	},
 	)

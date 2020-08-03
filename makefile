@@ -1,7 +1,6 @@
-export DEV_PORT=8080
-export DB_URI=mongodb://localhost:27017
+export DB_URI=mongodb+srv://bagus:41251127@shopping-list-sgm98.mongodb.net/sirius?retryWrites=true&w=majority
 export DB_NAME=sirius
-ACCESS_TOKEN_KEY=yoursecret
+export ACCESS_TOKEN_KEY=yoursecret
 
 dev:
 	go run main.go

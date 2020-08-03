@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bagus2x/sirius-c/domain"
 	"go.mongodb.org/mongo-driver/bson"
@@ -48,6 +49,7 @@ func (pr PaperRepository) FindByID(id string) (res *domain.Paper, err error) {
 func (pr PaperRepository) GetPaper(id string) (res []map[string]interface{}, err error) {
 	_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
 	match := bson.M{"$match": bson.M{"_id": _id}}

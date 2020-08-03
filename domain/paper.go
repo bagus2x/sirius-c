@@ -24,13 +24,14 @@ type Question struct {
 	Category string   `json:"category" bson:"category"`
 	Key      string   `json:"key" bson:"key"`
 	Options  []Option `json:"options" bson:"options"`
+	Image    Image    `json:"image" bson:"image"`
 }
 
 // Option - sub question
 type Option struct {
 	OptID  string `json:"optID" bson:"optID"`
 	Option string `json:"option" bson:"option"`
-	Image  string `json:"image" bson:"image"`
+	Image  Image  `json:"image" bson:"image"`
 }
 
 // Result - sub paper
@@ -44,6 +45,12 @@ type Result struct {
 type Selected struct {
 	QstID  int    `json:"qstID" bson:"qstID"`
 	Option string `josn:"option" bson:"option"`
+}
+
+// Image -
+type Image struct {
+	URL  string `json:"url" bson:"url"`
+	Size string `json:"size" bson:"size"`
 }
 
 // PaperRepository -

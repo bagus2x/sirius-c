@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	port   = os.Getenv("DEV_PORT")
+	port   = os.Getenv("PORT")
 	dbURI  = os.Getenv("DB_URI")
 	dbName = os.Getenv("DB_NAME")
 )
