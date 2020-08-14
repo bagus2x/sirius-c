@@ -64,7 +64,7 @@ func (pr PaperRepository) GetPaper(id string) (res []map[string]interface{}, err
 		},
 		"questions": "$questions",
 	}}
-	project2 := bson.M{"$project": bson.M{"questions.key": 0}}
+	project2 := bson.M{"$project": bson.M{"questions.key": 0, "questions.solution": 0}}
 	curs, err := pr.db.Collection("paper").Aggregate(pr.ctx, bson.A{match, project, project2})
 	if err != nil {
 		return nil, err

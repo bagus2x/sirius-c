@@ -23,6 +23,7 @@ type Question struct {
 	Question string   `json:"question" bson:"question"`
 	Category string   `json:"category" bson:"category"`
 	Key      string   `json:"key" bson:"key"`
+	Solution string   `json:"solution" bson:"solution"`
 	Options  []Option `json:"options" bson:"options"`
 	Image    Image    `json:"image" bson:"image"`
 }
