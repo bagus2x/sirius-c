@@ -2,9 +2,11 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
+	"github.com/bagus2x/sirius-c/db"
 	"github.com/bagus2x/sirius-c/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -20,7 +22,9 @@ type UserRepository struct {
 }
 
 // NewUserRepository -
-func NewUserRepository(ctx context.Context, db *mongo.Database) domain.UserRepository {
+func NewUserRepository(ctx context.Context) domain.UserRepository {
+	db := db.NewConnection.DB
+	fmt.Println(db)
 	return &UserRepository{ctx, db}
 }
 

@@ -9,7 +9,6 @@ import (
 	"github.com/bagus2x/sirius-c/repositories"
 	"github.com/bagus2x/sirius-c/services"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // UserResource -
@@ -18,8 +17,8 @@ type UserResource struct {
 }
 
 // NewUserResource -
-func NewUserResource(db *mongo.Database, r *gin.RouterGroup) {
-	ur := repositories.NewUserRepository(context.TODO(), db)
+func NewUserResource(r *gin.RouterGroup) {
+	ur := repositories.NewUserRepository(context.TODO())
 	us := services.NewUserService(ur)
 	urs := UserResource{us}
 	{

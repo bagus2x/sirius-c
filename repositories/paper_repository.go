@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/bagus2x/sirius-c/db"
 	"github.com/bagus2x/sirius-c/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,7 +18,9 @@ type PaperRepository struct {
 }
 
 // NewPaperRepository -
-func NewPaperRepository(ctx context.Context, db *mongo.Database) domain.PaperRepository {
+func NewPaperRepository(ctx context.Context) domain.PaperRepository {
+	db := db.NewConnection.DB
+	fmt.Println(db)
 	return &PaperRepository{ctx, db}
 }
 

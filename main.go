@@ -26,7 +26,7 @@ func main() {
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	r.Use(middleware.CORSMiddleware())
 	// Setup Database
-	db, cancel, err := db.Connect(dbURI, dbName, 10*time.Second)
+	cancel, err := db.NewConnection.Init(dbURI, dbName, 10*time.Second)
 	defer cancel()
 	if err != nil {
 		log.Fatal(err)
@@ -37,8 +37,8 @@ func main() {
 	// Setup Routes
 	rg := r.Group("/api")
 	// [GET, POST] api/users/
-	resources.NewUserResource(db, rg)
+	resources.NewUserResource(rg)
 	// [GET, POST] api/papers/
-	resources.NewPaperResource(db, rg)
+	resources.NewPaperResource(rg)
 	r.Run(":" + port)
 }

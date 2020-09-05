@@ -10,7 +10,6 @@ import (
 	"github.com/bagus2x/sirius-c/repositories"
 	"github.com/bagus2x/sirius-c/services"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // PaperResource -
@@ -19,8 +18,8 @@ type PaperResource struct {
 }
 
 // NewPaperResource -
-func NewPaperResource(db *mongo.Database, r *gin.RouterGroup) {
-	pr := repositories.NewPaperRepository(context.TODO(), db)
+func NewPaperResource(r *gin.RouterGroup) {
+	pr := repositories.NewPaperRepository(context.TODO())
 	ps := services.NewPaperService(pr)
 	prc := PaperResource{ps}
 	{

@@ -10,18 +10,26 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Connect -
-func Connect(uri, name string, time time.Duration) (*mongo.Database, context.CancelFunc, error) {
+type Connection struct {
+	DB *mongo.Database
+}
+
+// NewConnection -
+var NewConnection = &Connection{}
+
+// Init -
+func (c *Connection) Init(uri, name string, time time.Duration) (context.CancelFunc, error) {
 	opts := options.Client().ApplyURI(os.Getenv("DB_URI"))
 	ctx, cancel := context.WithTimeout(context.Background(), time)
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
-		return nil, cancel, err
+		return cancel, err
 	}
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		return nil, cancel, err
+		return cancel, err
 	}
 	fmt.Println("connected to mongo db")
-	return client.Database(name), cancel, nil
+	c.DB = client.Database(name)
+	return cancel, nil
 }
